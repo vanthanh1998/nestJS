@@ -25,8 +25,12 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findOne(
+    @Param('id') 
+    id: string
+  ) {
+    // const id: string = rq.pareams.id;
+    return this.usersService.findOne(id); // +id dùng dấu + có nghĩa là nó đang convert từ string => number
   }
 
   @Patch(':id')
