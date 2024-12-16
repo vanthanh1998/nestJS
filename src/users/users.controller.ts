@@ -9,13 +9,14 @@ export class UsersController {
 
   @Post()
   create(
-    @Body("email") email: string,
-    @Body("password") password: string,
-    @Body("name") name: string,
-  
+    // @Body("email") email: string,
+    // @Body("password") password: string,
+    // @Body("name") name: string,
+    @Body() 
+    thanhrain: CreateUserDto
   ) {
     // @Body()  ~~ const myEmail: string = req.body.email // string
-    return this.usersService.create(email, password, name);
+    return this.usersService.create(thanhrain);
   }
 
   @Get()
