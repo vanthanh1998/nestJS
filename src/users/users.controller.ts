@@ -33,9 +33,9 @@ export class UsersController {
     return this.usersService.findOne(id); // +id dùng dấu + có nghĩa là nó đang convert từ string => number
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Patch()
+  update( @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(updateUserDto);
   }
 
   @Delete(':id')
