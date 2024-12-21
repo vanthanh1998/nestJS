@@ -7,6 +7,7 @@ import { User, UserSchema } from './schemas/user.schema';
 @Module({
   imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])], // name (định danh id) chỗ này k phải là field trong db
   controllers: [UsersController],
-  providers: [UsersService]
+  providers: [UsersService],
+  exports: [UsersService], // exports => nơi khác có thể dùng đc usersService
 })
 export class UsersModule {}

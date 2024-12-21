@@ -1,26 +1,35 @@
-import { Controller, Get, Render } from '@nestjs/common';
+import { Controller, Get, Post, Render, Request, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigService } from '@nestjs/config';
+import { LocalAuthGuard } from './auth/local-auth.guard';
+import { AuthService } from './auth/auth.service';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { Public } from './decorator/customize';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private configService: ConfigService,
+    private authService: AuthService
   ) {}
 
-  @Get() /// route "" / => api (restful)
-  @Render("home")
-  handleHomePage() {
-    // port from .env
-    console.log(">> check port= ", this.configService.get<string>("PORT"));
-    
+  @Public() // dùng để disable guard => đgl: decorator
+  @UseGuards(LocalAuthGuard)
+  @Post('/login')
+  handleLogin(@Request() req){
+    return this.authService.login(req.user);
+  }
 
-    const message1 = this.appService.getHello();
-    
-    return {
-      message: message1
-    }
-    // return "this.appService.getHello()";
+  // @UseGuards(JwtAuthGuard)
+  @Public()
+  @Get('profile')
+  getProfile(@Request() req) {
+    return req.user;
+  }
+
+  @Get('profile1')
+  getProfile1(@Request() req) {
+    return req.user;
   }
 }
