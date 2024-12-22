@@ -10,5 +10,4 @@ export class CreateCompanyDto {
 
     @IsNotEmpty({ message: 'Desc k đc để trống', })
     desc: string;
-
 }
