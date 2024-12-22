@@ -5,6 +5,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Company, CompanyDocument } from './schemas/company.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
+import aqp from 'api-query-params';
+import { isEmpty } from 'class-validator';
 
 @Injectable()
 export class CompaniesService {
@@ -32,8 +34,36 @@ export class CompaniesService {
     return company;
   }
 
-  findAll() {
-    return `This action returns all companies`;
+  async findAll(currentPage: number, limit: number, queryString: string) {
+    const { filter, sort, population } = aqp(queryString); // population dùng để join table
+
+    delete filter.page;
+    delete filter.limit
+
+    let offset = (+currentPage - 1) * (+limit);
+    let defaultLimit = +limit ? +limit : 10;
+    const totalItems = (await this.companyModel.find(filter)).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+    console.log({filter})
+
+    const result = await this.companyModel.find(filter)
+      .skip(offset)
+      .limit(defaultLimit)
+      // => đoạn comment trên giúp ts giúp check code lỗi do package api-query-params => sort: Record<string, number>;
+      // chỉ hỗ trợ như này => bị mâu thuẩn type với sort
+      .sort(sort as any) // ép kiểu là any để tránh bị error type do typescript bắt lỗi
+      .populate(population)
+      .exec();
+
+      return {
+        meta: {
+            current: currentPage, //trang hiện tại
+            pageSize: limit, //số lượng bản ghi đã lấy
+            pages: totalPages, //tổng số trang với điều kiện query
+            total: totalItems // tổng số phần tử (số bản ghi)
+          },
+        result //kết quả query
+      }
   }
 
   findOne(id: number) {
