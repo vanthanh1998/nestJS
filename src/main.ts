@@ -5,6 +5,7 @@ import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { TransformInterceptor } from './core/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -20,7 +21,9 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  //config cors
+  app.useGlobalInterceptors(new TransformInterceptor());
+
+  //config fix error cors
   app.enableCors(
     {
       "origin": "*", // cho phép nơi nào đc phép kết nối // http://localhost:3000
