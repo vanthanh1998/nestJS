@@ -40,19 +40,42 @@ export class CompaniesService {
     return `This action returns a #${id} company`;
   }
 
-  update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser) {
-    return this.companyModel.updateOne(
+  async update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser) {
+    return await this.companyModel.updateOne(
       {_id: id},
       {
-      ...updateCompanyDto,
-      updatedBy:{
-        _id: user._id,
-        email: user.email,
+        ...updateCompanyDto,
+        updatedBy:{
+          _id: user._id,
+          email: user.email,
+        }
       }
-    })
+    )
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} company`;
+  async remove(
+    id: string, 
+    user: IUser
+  ) {
+    // do softDelete chỉ hỗ trợ 2 trường {isDeleted, deletedAt} k hỗ trợ lưu trường deletedBy 
+    // => nên phải updateOne xong s đó mới softDelete (2 câu query) or có thể viết 1 câu query như đoạn comment
+    await this.companyModel.updateOne(
+      {_id: id},
+      {
+        // deletedBy:{
+        //   _id: user._id,
+        //   email: user.email,
+        //   isDeleted: true,
+        //   deletedAt: new Date(),
+        // }
+        deletedBy:{
+          _id: user._id,
+          email: user.email,
+        }
+      }
+    )
+    return this.companyModel.softDelete({
+      _id: id, 
+    })
   }
 }

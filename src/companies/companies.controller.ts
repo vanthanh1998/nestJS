@@ -10,7 +10,10 @@ export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 
   @Post()
-  create(@Body() createCompanyDto: CreateCompanyDto, @User() user: IUser) {
+  create(
+    @Body() createCompanyDto: CreateCompanyDto, 
+    @User() user: IUser
+  ) {
     // @User() user: IUser => @User() đc lấy từ function decorator
     return this.companiesService.create(createCompanyDto, user);
   }
@@ -29,12 +32,16 @@ export class CompaniesController {
   update(
     @Param('id') id: string, 
     @Body() updateCompanyDto: UpdateCompanyDto,
-    @User() user: IUser) {
+    @User() user: IUser
+  ) {
       return this.companiesService.update(id, updateCompanyDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.companiesService.remove(+id);
+  remove(
+    @Param('id') id: string,
+    @User() user: IUser
+  ) {
+    return this.companiesService.remove(id, user);
   }
 }
