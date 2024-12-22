@@ -13,6 +13,7 @@ async function bootstrap() {
 
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
+  app.useGlobalInterceptors(new TransformInterceptor(reflector));
 
   app.useStaticAssets(join(__dirname, '..', 'public')); // js, css, image
   app.setBaseViewsDir(join(__dirname, '..', 'views')); // view
@@ -21,7 +22,6 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  app.useGlobalInterceptors(new TransformInterceptor());
 
   //config fix error cors
   app.enableCors(
