@@ -5,6 +5,7 @@ import ms from 'ms';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { IUser } from 'src/users/users.interface';
 import { UsersService } from 'src/users/users.service';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,7 @@ export class AuthService {
         return null;
     }
 
-    async login(user: IUser) {
+    async login(user: IUser, response: Response) {
         const { _id, name, email, role } = user
 
         const payload = { 
@@ -40,10 +41,18 @@ export class AuthService {
         };
 
         const refresh_token = this.creareRefreshToken(payload);
+
+        // update user with refresh token
+        await this.usersService.updateUserToken(refresh_token, _id);
+
+        // set refresh token as cookies
+        response.cookie('refresh_token', refresh_token, {
+            httpOnly: true, // set true thì chỉ server mới lấy đc cookies này thôi
+            maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')) // ~~ EXPIRE nhưng đc tính theo miliseconds => vì vậy k cần / 1000
+        })
         
         return {
             access_token: this.jwtService.sign(payload),
-            refresh_token,
             user: {
                 _id,
                 name,

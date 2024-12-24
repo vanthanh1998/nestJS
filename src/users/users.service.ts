@@ -157,4 +157,11 @@ export class UsersService {
   isValidPassword(password: string, hashPW: string){
     return compareSync(password, hashPW);
   }
+
+  updateUserToken = async (refreshToken: string, _id: string) => {
+    return await this.userModel.updateOne(
+      { _id },
+      { refreshToken }
+    )
+  }
 }
