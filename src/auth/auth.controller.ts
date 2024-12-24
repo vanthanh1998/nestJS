@@ -12,6 +12,7 @@ export class AuthController {
 
   @Public() // dùng để disable guard => đgl: decorator
   @UseGuards(LocalAuthGuard)
+  @ResponseMessage("User login")
   @Post('/login')
   handleLogin(@Request() req){
     return this.authService.login(req.user);
