@@ -6,7 +6,6 @@ import { Company, CompanyDocument } from './schemas/company.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
-import { isEmpty } from 'class-validator';
 
 @Injectable()
 export class CompaniesService {

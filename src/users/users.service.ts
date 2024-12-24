@@ -2,16 +2,18 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './schemas/user.schema';
-import mongoose, { Model } from 'mongoose';
+import { User as UserM, UserDocument } from './schemas/user.schema';
+import mongoose from 'mongoose';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { IUser } from './users.interface';
+import aqp from 'api-query-params';
 
 @Injectable()
 export class UsersService {
 
   constructor(
-    @InjectModel(User.name) 
+    @InjectModel(UserM.name) 
     private userModel: SoftDeleteModel<UserDocument>
   ) {}
 
@@ -22,15 +24,31 @@ export class UsersService {
     return hash;
   }
 
-  async create(thanhrain: CreateUserDto) {
-    const hashPassword = this.getHashPassword(thanhrain.password)
+  async create(createUserDto: CreateUserDto, user: IUser) {
+    const { name, email, password, age, gender, address, role, company } = createUserDto;
 
-    let user = await this.userModel.create({
-      email: thanhrain.email, 
+    // check mail
+    const isExistEmail = await this.userModel.findOne({ email });
+    if(isExistEmail){
+      throw new BadRequestException(`Email ${email} đã tồn tại, Vui lòng sử dụng email khác.`)
+    }
+
+    const hashPassword = this.getHashPassword(password)
+
+    let newUser = await this.userModel.create({
+      name, email, 
       password: hashPassword, 
-      name: thanhrain.name
+      age, gender, address, role, company,
+      createdBy:{
+        _id: user._id,
+        email: user.email,
+      }
     })
-    return user;
+
+    return {
+      _id : newUser?._id,
+      createdAt: newUser?.createdAt
+    }
   }
 
   async register(user: RegisterUserDto){
@@ -57,8 +75,68 @@ export class UsersService {
     return registerUser;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async update(updateUserDto: UpdateUserDto, user: IUser) {
+    return await this.userModel.updateOne(
+      { _id: updateUserDto._id}, 
+      { 
+        ...updateUserDto,
+        updatedBy:{
+          _id: user._id,
+          email: user.email,
+        }
+      })
+  }
+
+  async remove(id: string, user: IUser) {
+    if(!mongoose.Types.ObjectId.isValid(id))
+      return "not found user id";
+
+    await this.userModel.updateOne(
+      { _id: id },
+      {
+        deletedBy:{
+          _id: user._id,
+          email: user.email,
+        }
+      }
+    )
+
+    return this.userModel.softDelete({
+      _id: id
+    })
+  }
+
+  async findAll(currentPage: number, limit: number, queryString: string) {
+    const { filter, sort, population } = aqp(queryString); // population dùng để join table
+
+    delete filter.page;
+    delete filter.limit
+
+    let offset = (+currentPage - 1) * (+limit);
+    let defaultLimit = +limit ? +limit : 10;
+    const totalItems = (await this.userModel.find(filter)).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+    console.log({filter})
+
+    const result = await this.userModel.find(filter)
+      .select('-password')
+      .skip(offset)
+      .limit(defaultLimit)
+      // => đoạn comment trên giúp ts giúp check code lỗi do package api-query-params => sort: Record<string, number>;
+      // chỉ hỗ trợ như này => bị mâu thuẩn type với sort
+      .sort(sort as any) // ép kiểu là any để tránh bị error type do typescript bắt lỗi
+      .populate(population)
+      .exec();
+
+      return {
+        meta: {
+            current: currentPage, //trang hiện tại
+            pageSize: limit, //số lượng bản ghi đã lấy
+            pages: totalPages, //tổng số trang với điều kiện query
+            total: totalItems // tổng số phần tử (số bản ghi)
+          },
+        result //kết quả query
+      }
   }
 
   findOne(id: string) {
@@ -67,7 +145,7 @@ export class UsersService {
 
     return this.userModel.findOne({
       _id: id
-    })
+    }).select('-password');
   }
 
   findOneByUsername(username: string) {
@@ -78,18 +156,5 @@ export class UsersService {
 
   isValidPassword(password: string, hashPW: string){
     return compareSync(password, hashPW);
-  }
-
-  async update(updateUserDto: UpdateUserDto) {
-    return await this.userModel.updateOne({ _id: updateUserDto._id}, { ...updateUserDto })
-  }
-
-  async remove(id: string) {
-    if(!mongoose.Types.ObjectId.isValid(id))
-      return "not found user id";
-
-    return await this.userModel.softDelete({
-      _id: id
-    })
   }
 }
