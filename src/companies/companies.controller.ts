@@ -22,8 +22,8 @@ export class CompaniesController {
   @ResponseMessage("Fetch List Company with paginate")
   // @Query("page" get url page ~~ req.query.page
   findAll(
-    @Query("page") currentPage: string,
-    @Query("limit") limit: string,
+    @Query("current") currentPage: string,
+    @Query("pageSize") limit: string,
     @Query() queryString: string
   ) {
     // Để convert từ string => number: +currentPage
