@@ -6,7 +6,6 @@ import { Company, CompanyDocument } from './schemas/company.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
-import { isEmpty } from 'class-validator';
 
 @Injectable()
 export class CompaniesService {
@@ -37,8 +36,8 @@ export class CompaniesService {
   async findAll(currentPage: number, limit: number, queryString: string) {
     const { filter, sort, population } = aqp(queryString); // population dùng để join table
 
-    delete filter.page;
-    delete filter.limit
+    delete filter.current;
+    delete filter.pageSize
 
     let offset = (+currentPage - 1) * (+limit);
     let defaultLimit = +limit ? +limit : 10;
