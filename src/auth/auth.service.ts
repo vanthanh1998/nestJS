@@ -46,9 +46,9 @@ export class AuthService {
         await this.usersService.updateUserToken(refresh_token, _id);
 
         // set refresh token as cookies
-        response.cookie('refresh_token1', refresh_token, {
+        response.cookie('refresh_token', refresh_token, {
             httpOnly: true, // set true thì chỉ server mới lấy đc cookies này thôi
-            maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')) * 1000 // ~~ EXPIRE nhưng đc tính theo miliseconds => vì vậy k cần / 1000
+            maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE'))// ~~ EXPIRE nhưng đc tính theo miliseconds => vì vậy k cần / 1000
         })
         
         return {
@@ -82,11 +82,11 @@ export class AuthService {
 
     processNewToken = async (refreshToken: string, response: Response) =>{
         try {
-            await this.jwtService.verify(refreshToken, {
+            this.jwtService.verify(refreshToken, {
                 secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SCERET'),
             })
 
-            let user = await this.usersService.findOneByToken(refreshToken);
+            let user = await this.usersService.findUserByToken(refreshToken);
             if(user) {
                 const { _id, name, email, role } = user
 
@@ -104,10 +104,13 @@ export class AuthService {
                 // update user with refresh token
                 await this.usersService.updateUserToken(refresh_token, _id.toString());
 
+                // remove cookies
+                response.clearCookie("refresh_token")
+
                 // set refresh token as cookies
                 response.cookie('refresh_token', refresh_token, {
                     httpOnly: true, // set true thì chỉ server mới lấy đc cookies này thôi
-                    maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')) * 1000 // ~~ EXPIRE nhưng đc tính theo miliseconds => vì vậy k cần / 1000
+                    maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE'))
                 })
                 
                 return {
@@ -119,6 +122,8 @@ export class AuthService {
                         role
                     }
                 };
+            } else {
+                throw new BadRequestException(`Refresh token k hợp lệ. Vui lòng login`)
             }
         } catch (error) {
             throw new BadRequestException(`Refresh token k hợp lệ. Vui lòng login`)
