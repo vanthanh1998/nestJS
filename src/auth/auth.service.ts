@@ -80,7 +80,7 @@ export class AuthService {
         return refresh_token;
     }
 
-    processNewToken = async (refreshToken: string, response: Response) =>{
+    processNewToken = async (refreshToken: string, response: Response) => {
         try {
             this.jwtService.verify(refreshToken, {
                 secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SCERET'),
@@ -128,5 +128,13 @@ export class AuthService {
         } catch (error) {
             throw new BadRequestException(`Refresh token k hợp lệ. Vui lòng login`)
         }
+    }
+
+    logout = async (response: Response, user: IUser) => {
+        // - Update refresh_token === null (empty)
+        await this.usersService.updateUserToken("", user._id);
+        // - Remove refresh_token ở cookies (remove cookies)
+        response.clearCookie("refresh_token")
+        return "ok";
     }
 }

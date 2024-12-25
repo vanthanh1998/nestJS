@@ -18,7 +18,7 @@ export class AuthController {
   @Post('/login')
   handleLogin(
     @Req() req, 
-    @Res({ passthrough: true }) response: Response
+    @Res({ passthrough: true }) response: Response // để xử lý token JWT
   ){
     return this.authService.login(req.user, response);
   }
@@ -42,5 +42,14 @@ export class AuthController {
   handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response){
     const refreshToken = request.cookies["refresh_token"]
     return this.authService.processNewToken(refreshToken, response);
+  }
+
+  @ResponseMessage("Logout user")
+  @Post('/logout')
+  handleLogout(
+    @Res({ passthrough: true }) response: Response,
+    @User() user: IUser
+  ){
+    return this.authService.logout(response, user);
   }
 }
