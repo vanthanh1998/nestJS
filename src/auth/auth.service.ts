@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import ms from 'ms';
@@ -46,9 +46,9 @@ export class AuthService {
         await this.usersService.updateUserToken(refresh_token, _id);
 
         // set refresh token as cookies
-        response.cookie('refresh_token', refresh_token, {
+        response.cookie('refresh_token1', refresh_token, {
             httpOnly: true, // set true thì chỉ server mới lấy đc cookies này thôi
-            maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')) // ~~ EXPIRE nhưng đc tính theo miliseconds => vì vậy k cần / 1000
+            maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')) * 1000 // ~~ EXPIRE nhưng đc tính theo miliseconds => vì vậy k cần / 1000
         })
         
         return {
@@ -78,5 +78,50 @@ export class AuthService {
         });
 
         return refresh_token;
+    }
+
+    processNewToken = async (refreshToken: string, response: Response) =>{
+        try {
+            await this.jwtService.verify(refreshToken, {
+                secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SCERET'),
+            })
+
+            let user = await this.usersService.findOneByToken(refreshToken);
+            if(user) {
+                const { _id, name, email, role } = user
+
+                const payload = { 
+                    sub: "token refresh",
+                    iss: "from server",
+                    _id,
+                    name,
+                    email,
+                    role,
+                };
+
+                const refresh_token = this.createRefreshToken(payload);
+
+                // update user with refresh token
+                await this.usersService.updateUserToken(refresh_token, _id.toString());
+
+                // set refresh token as cookies
+                response.cookie('refresh_token', refresh_token, {
+                    httpOnly: true, // set true thì chỉ server mới lấy đc cookies này thôi
+                    maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE')) * 1000 // ~~ EXPIRE nhưng đc tính theo miliseconds => vì vậy k cần / 1000
+                })
+                
+                return {
+                    access_token: this.jwtService.sign(payload),
+                    user: {
+                        _id,
+                        name,
+                        email,
+                        role
+                    }
+                };
+            }
+        } catch (error) {
+            throw new BadRequestException(`Refresh token k hợp lệ. Vui lòng login`)
+        }
     }
 }
