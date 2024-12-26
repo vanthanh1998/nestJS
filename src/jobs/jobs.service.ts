@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -70,10 +70,8 @@ export class JobsService {
     let defaultLimit = +limit ? +limit : 10;
     const totalItems = (await this.jobModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    console.log({filter})
 
     const result = await this.jobModel.find(filter)
-      .select('-password')
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any) // ép kiểu là any để tránh bị error type do typescript bắt lỗi
@@ -93,10 +91,10 @@ export class JobsService {
 
   findOne(id: string) {
     if(!mongoose.Types.ObjectId.isValid(id))
-          return "not found";
+      throw new BadRequestException(`not found compay with id=${id}`)
 
-    return this.jobModel.findOne({
+    return this.jobModel.findById({
       _id: id
-    }).select('-password');
+    });
   }
 }

@@ -34,9 +34,9 @@ export class CompaniesController {
 
   @Public()
   @Get(':id')
-  @ResponseMessage("Get compay by id")
+  @ResponseMessage("Get company by id")
   findOne(@Param('id') id: string) {
-    return this.companiesService.findOne(+id);
+    return this.companiesService.findOne(id);
   }
 
   @Patch(':id')
