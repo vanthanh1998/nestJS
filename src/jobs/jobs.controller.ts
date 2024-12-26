@@ -33,7 +33,7 @@ export class JobsController {
     return this.jobsService.findOne(id);
   }
 
-  @ResponseMessage("Update a job")
+  @ResponseMessage("Update a job by id")
   @Patch(':id')
   update( 
     @Param('id') id: string, 

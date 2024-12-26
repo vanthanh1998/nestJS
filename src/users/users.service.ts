@@ -116,7 +116,6 @@ export class UsersService {
     let defaultLimit = +limit ? +limit : 10;
     const totalItems = (await this.userModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
-    console.log({filter})
 
     const result = await this.userModel.find(filter)
       .select('-password')
@@ -141,9 +140,9 @@ export class UsersService {
 
   findOne(id: string) {
     if(!mongoose.Types.ObjectId.isValid(id))
-      return "not found";
+      throw new BadRequestException(`not found compay with id=${id}`)
 
-    return this.userModel.findOne({
+    return this.userModel.findById({
       _id: id
     }).select('-password');
   }
