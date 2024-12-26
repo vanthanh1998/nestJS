@@ -19,7 +19,7 @@ export class CompaniesService {
     // let company = this.companyModel.create({
     //   name: createCompanyDto.name,
     //   address: createCompanyDto.address,
-    //   desc: createCompanyDto.desc,
+    //   description: createCompanyDto.description,
     // })
 
     let company = this.companyModel.create({ 

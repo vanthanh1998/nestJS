@@ -9,5 +9,8 @@ export class CreateCompanyDto {
     address: string;
 
     @IsNotEmpty({ message: 'Desc k đc để trống', })
-    desc: string;
+    description: string;
+
+    @IsNotEmpty({ message: 'Logo k đc để trống', })
+    logo: string;
 }
