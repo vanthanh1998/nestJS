@@ -91,6 +91,11 @@ export class UsersService {
     if(!mongoose.Types.ObjectId.isValid(id))
       return "not found user id";
 
+    const foundUser = await this.userModel.findById(id);
+    if(foundUser.email === "thanhchonthanh@gmail.com"){
+      throw new BadRequestException(`Không có quyền xóa tài khoản này`);
+    }
+
     await this.userModel.updateOne(
       { _id: id },
       {
@@ -140,17 +145,24 @@ export class UsersService {
 
   findOne(id: string) {
     if(!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException(`not found compay with id=${id}`)
+      throw new BadRequestException(`not found user with id=${id}`)
 
     return this.userModel.findById({
       _id: id
-    }).select('-password');
+    }).select('-password')
+    .populate({
+      path: "role",  // role này tương úng với permissions đc khai báo trong schema
+      select: { _id: 1, name: 1 } 
+    }) // = 1 ~~ get ra field đó => -1 : bỏ field đó;
   }
 
   findOneByUsername(username: string) {
     return this.userModel.findOne({
       email: username
-    })
+    }).populate({
+      path: "role", // role này tương úng với permissions đc khai báo trong schema
+      select: { name: 1, permissions: 1 } 
+    }) // = 1 ~~ get ra field đó => -1 : bỏ field đó;
   }
 
   isValidPassword(password: string, hashPW: string){

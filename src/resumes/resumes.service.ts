@@ -75,10 +75,21 @@ export class ResumesService {
     return await this.resumeModel.findById({ _id: id })
   }
 
-  async findByUsers(user: IUser) {
+  async findByUsers(user: IUser) { // xem lịch sử cv
     return await this.resumeModel.find({
       userId: user._id
-    })
+    }) 
+    .sort("-createdAt") // sort để lấy những cv gần nhất
+    .populate([
+      {
+        path: "companyId",
+        select: { name: 1 }
+      },
+      {
+        path: "jobId",
+        select: { name: 1 }
+      }
+    ])
   }
 
   async update(id: string, status: string, user: IUser) {

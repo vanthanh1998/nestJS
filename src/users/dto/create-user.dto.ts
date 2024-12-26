@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsEmail, IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested } from 'class-validator';
+import { IsEmail, IsMongoId, IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested } from 'class-validator';
 import mongoose from 'mongoose';
 
 // data transfer object // class = {}
@@ -33,6 +33,7 @@ export class CreateUserDto {
     address: string;
 
     @IsNotEmpty({ message: 'Role k đc để trống', })
+    @IsMongoId({ message: 'Role có định dạng là mongo id', }) // do use ref nên phải check mongo id
     role: string;
 
     @IsNotEmptyObject()
