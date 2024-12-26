@@ -13,7 +13,10 @@ export class Company {
   address: string;
 
   @Prop()
-  desc: string;
+  description: string;
+
+  @Prop()
+  logo: string;
 
   @Prop({ type: Object })
   createdBy: {

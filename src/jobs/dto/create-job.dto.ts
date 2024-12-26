@@ -8,6 +8,9 @@ class Company {
   
     @IsNotEmpty()
     name: string;
+
+    @IsNotEmpty()
+    logo: string;
   }
 export class CreateJobDto {
     @IsNotEmpty({ message: 'Name k đc để trống', })
