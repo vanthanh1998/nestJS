@@ -7,6 +7,7 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
+import { ADMIN_ROLE } from 'src/databases/sample';
 
 @Injectable()
 export class RolesService {
@@ -100,7 +101,7 @@ export class RolesService {
       throw new BadRequestException(`not found role with id=${id}`)
 
     const foundRole = await this.roleModel.findById(id);
-    if(foundRole.name === "ADMIN"){
+    if(foundRole.name === ADMIN_ROLE){
       throw new BadRequestException(`Không có quyền xóa role ADMIN`);
     }
     

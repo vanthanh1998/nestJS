@@ -2,19 +2,24 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User as UserM, UserDocument } from './schemas/user.schema';
+import { User, UserDocument } from './schemas/user.schema';
 import mongoose from 'mongoose';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from './users.interface';
 import aqp from 'api-query-params';
+import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
+import { USER_ROLE } from 'src/databases/sample';
 
 @Injectable()
 export class UsersService {
 
   constructor(
-    @InjectModel(UserM.name) 
-    private userModel: SoftDeleteModel<UserDocument>
+    @InjectModel(User.name) 
+    private userModel: SoftDeleteModel<UserDocument>,
+
+    @InjectModel(Role.name) 
+    private roleModel: SoftDeleteModel<RoleDocument>
   ) {}
 
   // hash pw
@@ -60,6 +65,9 @@ export class UsersService {
       throw new BadRequestException(`Email ${email} đã tồn tại, Vui lòng sử dụng email khác.`)
     }
 
+    // fetch user role
+    const userRole = await this.roleModel.findOne({ name: USER_ROLE });
+
     const hashPassword = this.getHashPassword(password)
 
     let registerUser = await this.userModel.create({
@@ -69,7 +77,7 @@ export class UsersService {
       age,
       gender,
       address,
-      role: "USER",
+      role: userRole?._id,
     });
 
     return registerUser;
@@ -161,7 +169,7 @@ export class UsersService {
       email: username
     }).populate({
       path: "role", // role này tương úng với permissions đc khai báo trong schema
-      select: { name: 1, permissions: 1 } 
+      select: { name: 1 } 
     }) // = 1 ~~ get ra field đó => -1 : bỏ field đó;
   }
 
@@ -178,5 +186,9 @@ export class UsersService {
 
   findUserByToken = async(refreshToken: string) => {
     return await this.userModel.findOne({refreshToken})
+    .populate({
+      path: "role", // role này tương úng với permissions đc khai báo trong schema
+      select: { name: 1 } 
+    })
   }
 }
