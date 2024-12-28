@@ -4,8 +4,7 @@ export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true); // key : value
 
 export const RESPONSE_MESSAGE = 'response_message';
-export const ResponseMessage = (message: string) =>
-    SetMetadata(RESPONSE_MESSAGE, message);
+export const ResponseMessage = (message: string) => SetMetadata(RESPONSE_MESSAGE, message);
 
 // passing request to service => lấy thông tin users đang đăng nhập
 export const User = createParamDecorator(
@@ -14,3 +13,6 @@ export const User = createParamDecorator(
         return request.user;
     },
 );
+
+export const IS_PUBLIC_PERMISSION = 'isPublicPermission';
+export const SkipCheckPermission = () => SetMetadata(IS_PUBLIC_PERMISSION, true); // key : value

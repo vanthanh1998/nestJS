@@ -1,4 +1,3 @@
-
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
@@ -8,36 +7,31 @@ import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    private configService: ConfigService,
-    private rolesService: RolesService
-  ) {
-    super({ // đoạn này giúp giải mã token jwt
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_ACCESS_TOKEN_SCERET'),
-    });
-  }
+    constructor(
+        private configService: ConfigService,
+        private rolesService: RolesService
+    ) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ignoreExpiration: false,
+            secretOrKey: configService.get<string>("JWT_ACCESS_TOKEN_SECRET"),
+        });
+    }
 
-  async validate(payload: IUser) { // hàm validate này của package jwt => nếu token hợp lệ thì trả ra data như này
-    // return { 
-    //     userId: payload.sub, 
-    //     username: payload.username,
-    //     name: "foxrainsad",
-    // };
+    async validate(payload: IUser) {
+        const { _id, name, email, role } = payload;
+        // cần gán thêm permissions vào req.user
+        const userRole = role as unknown as { _id: string; name: string }
+        const temp = (await this.rolesService.findOne(userRole._id)).toObject();
 
-    const { _id, name, email, role } = payload;
+        //req.user
+        return {
+            _id,
+            name,
+            email,
+            role,
+            permissions: temp?.permissions ?? []
+        };
+    }
 
-    // cần gán thêm permissions vào req.user
-    const userRole = role as unknown as { _id: string; name: string} // casting data => để k bị error
-    const temp = (await this.rolesService.findOne(userRole._id)).toObject();
-
-    return {
-      _id,
-      name,
-      email,
-      role,
-      permissions: temp?.permissions ?? []
-    };
-  }
 }

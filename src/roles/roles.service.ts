@@ -70,12 +70,17 @@ export class RolesService {
   async findOne(id: string) {
     if(!mongoose.Types.ObjectId.isValid(id))
       throw new BadRequestException(`not found role with id=${id}`)
+    let role = await this.roleModel.findById(id);
+
+    if(role){
+      return role.populate({
+        path: "permissions",  // permissions này tương úng với permissions đc khai báo trong schema
+        select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 } 
+      })
+    }
+    return role
     
-    return (await this.roleModel.findById(id))
-    .populate({
-      path: "permissions",  // permissions này tương úng với permissions đc khai báo trong schema
-      select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 } 
-    }) // = 1 ~~ get ra field đó => -1 : bỏ field đó
+     // = 1 ~~ get ra field đó => -1 : bỏ field đó
   }
 
   async update(id: string, updateRoleDto: UpdateRoleDto, user: IUser) {

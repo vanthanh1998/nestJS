@@ -21,7 +21,9 @@ async function bootstrap() {
 
   app.setViewEngine('ejs');
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true, // thêm whitelist thì khi update sẽ k bao h bị mất data
+  }));
 
   // config cookies
   app.use(cookieParser());

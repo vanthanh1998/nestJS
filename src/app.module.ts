@@ -13,6 +13,9 @@ import { ResumesModule } from './resumes/resumes.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 import { DatabasesModule } from './databases/databases.module';
+import { MailModule } from './mail/mail.module';
+import { SubscribersModule } from './subscribers/subscribers.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -40,7 +43,10 @@ import { DatabasesModule } from './databases/databases.module';
     ResumesModule,
     PermissionsModule,
     RolesModule,
-    DatabasesModule
+    DatabasesModule,
+    MailModule,
+    SubscribersModule,
+    ScheduleModule.forRoot()
   ],
   controllers: [AppController],
   providers: [AppService],
