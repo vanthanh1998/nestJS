@@ -6,8 +6,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Subscriber } from 'rxjs';
-import { SubscriberSchema } from 'src/subscribers/schemas/subscriber.schema';
+import { Subscriber, SubscriberSchema } from 'src/subscribers/schemas/subscriber.schema';
 import { Job, JobSchema } from 'src/jobs/schemas/job.schema';
 @Module({
   imports: [
@@ -34,7 +33,7 @@ import { Job, JobSchema } from 'src/jobs/schemas/job.schema';
       }),
       inject: [ConfigService],
     }),
-    
+
     MongooseModule.forFeature([
       { name: Subscriber.name, schema: SubscriberSchema },
       { name: Job.name, schema: JobSchema },
