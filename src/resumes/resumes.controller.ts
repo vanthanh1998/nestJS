@@ -34,7 +34,7 @@ export class ResumesController {
   }
 
   @ResponseMessage("Get Resumes by User")
-  @Post('by-user') // use post để tránh bị trùng vs method get
+  @Post('by-user') // use post để tránh bị trùng vs method get =>  // xem lịch sử cv
   getResumeByUser(@User() user: IUser) {
     return this.resumesService.findByUsers(user);
   }

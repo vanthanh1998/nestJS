@@ -5,11 +5,13 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { IUser } from 'src/users/users.interface';
+import { RolesService } from 'src/roles/roles.service';
 
 @Controller("auth") // route => /auth
 export class AuthController {
   constructor(
-    private authService: AuthService
+    private authService: AuthService,
+    private rolesService: RolesService
   ) {}
 
   @Public() // dùng để disable guard => đgl: decorator
@@ -32,7 +34,11 @@ export class AuthController {
 
   @ResponseMessage("Get user information")
   @Get('/account')
-  handleGetUserInfo(@User() user: IUser){ // decorator này lấy từ req.user ~~ @req.user
+  async handleGetUserInfo(@User() user: IUser){ // decorator này lấy từ req.user ~~ @req.user
+    // decorator user lấy từ JWT nên k có permissions vì vậy cần thêm 1 bước query xuống db lấy findOne 
+    const temp = await this.rolesService.findOne(user.role._id) as any; //  as any bỏ đi check typess
+    user.permissions = temp.permissions;
+
     return { user };
   }
 
