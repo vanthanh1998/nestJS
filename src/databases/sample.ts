@@ -169,7 +169,7 @@ export const INIT_PERMISSIONS = [
     {
         "_id": "648ab750fa16b294212e404c",
         "name": "Upload Single File",
-        "apiPath": "api/v1/files/upload",
+        "apiPath": "/api/v1/files/upload",
         "method": "POST",
         "module": "FILES",
         "createdBy": {
@@ -265,7 +265,7 @@ export const INIT_PERMISSIONS = [
     {
         "_id": "648ad4fedafdb9754f40b863",
         "name": "Create a Resume",
-        "apiPath": "api/v1/resumes",
+        "apiPath": "/api/v1/resumes",
         "method": "POST",
         "module": "RESUMES",
         "createdBy": {
@@ -281,7 +281,7 @@ export const INIT_PERMISSIONS = [
     {
         "_id": "648ad511dafdb9754f40b868",
         "name": "Fetch resume with paginate",
-        "apiPath": "api/v1/resumes",
+        "apiPath": "/api/v1/resumes",
         "method": "GET",
         "module": "RESUMES",
         "createdBy": {
@@ -297,7 +297,7 @@ export const INIT_PERMISSIONS = [
     {
         "_id": "648ad522dafdb9754f40b86d",
         "name": "Get resume by id",
-        "apiPath": "api/v1/resumes/:id",
+        "apiPath": "/api/v1/resumes/:id",
         "method": "GET",
         "module": "RESUMES",
         "createdBy": {
@@ -313,7 +313,7 @@ export const INIT_PERMISSIONS = [
     {
         "_id": "648ad53bdafdb9754f40b872",
         "name": "Delete a resume",
-        "apiPath": "api/v1/resumes/:id",
+        "apiPath": "/api/v1/resumes/:id",
         "method": "DELETE",
         "module": "RESUMES",
         "createdBy": {
@@ -329,7 +329,7 @@ export const INIT_PERMISSIONS = [
     {
         "_id": "648ad555dafdb9754f40b877",
         "name": "Update resume status",
-        "apiPath": "api/v1/resumes/:id",
+        "apiPath": "/api/v1/resumes/:id",
         "method": "PATCH",
         "module": "RESUMES",
         "createdBy": {
