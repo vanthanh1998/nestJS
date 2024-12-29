@@ -8,6 +8,7 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -33,7 +34,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.enableVersioning({ // default prefix "v"
     type: VersioningType.URI,
-    defaultVersion: ['1', '2'], // v1, v2
+    defaultVersion: ['1'], // v1, v2
   });
 
   // config fix error cors
@@ -48,6 +49,29 @@ async function bootstrap() {
 
   // config helmet
   app.use(helmet());
+
+  // config swagger
+  const config = new DocumentBuilder()
+    .setTitle('NestJS Document')
+    .setDescription('All modules API')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'Bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'token',
+    )
+    .addSecurityRequirements('token')
+    .build();
+  const document = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('swagger', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    }
+  });
 
   await app.listen(configService.get('PORT'));
 }
