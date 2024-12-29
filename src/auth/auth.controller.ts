@@ -20,7 +20,7 @@ export class AuthController {
   @Public() // dùng để disable guard => đgl: decorator
   @UseGuards(LocalAuthGuard)
   @UseGuards(ThrottlerGuard) // mỗi lần login chỉ cho phép login bao nhiêu lần thì sẽ chặn
-  @Throttle(5, 60) // 5 lần trong 60s
+  @Throttle({ default: { limit: 5, ttl: 60000 } })// 5 lần trong 60s
   @ApiBody({ type: UserLoginDto, })
   @ResponseMessage("User login")
   @Post('/login')
