@@ -83,9 +83,12 @@ export class UsersService {
     return registerUser;
   }
 
-  async update(updateUserDto: UpdateUserDto, user: IUser) {
+  async update(id: string, updateUserDto: UpdateUserDto, user: IUser) {
+    if(!mongoose.Types.ObjectId.isValid(id))
+      throw new BadRequestException(`not found user with id= ${id}`)
+
     return await this.userModel.updateOne(
-      { _id: updateUserDto._id}, 
+      { _id: id}, 
       { 
         ...updateUserDto,
         updatedBy:{
@@ -97,7 +100,7 @@ export class UsersService {
 
   async remove(id: string, user: IUser) {
     if(!mongoose.Types.ObjectId.isValid(id))
-      return "not found user id";
+      throw new BadRequestException(`not found user with id= ${id}`)
 
     const foundUser = await this.userModel.findById(id);
     if(foundUser && foundUser.email === "thanhchonthanh@gmail.com"){
@@ -153,7 +156,7 @@ export class UsersService {
 
   findOne(id: string) {
     if(!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException(`not found user with id=${id}`)
+      throw new BadRequestException(`not found user with id= ${id}`)
 
     return this.userModel.findById({
       _id: id
