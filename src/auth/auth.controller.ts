@@ -6,6 +6,7 @@ import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { Request, Response } from 'express';
 import { IUser } from 'src/users/users.interface';
 import { RolesService } from 'src/roles/roles.service';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller("auth") // route => /auth
 export class AuthController {
@@ -16,6 +17,8 @@ export class AuthController {
 
   @Public() // dùng để disable guard => đgl: decorator
   @UseGuards(LocalAuthGuard)
+  @UseGuards(ThrottlerGuard) // mỗi lần login chỉ cho phép login bao nhiêu lần thì sẽ chặn
+  @Throttle(5, 60) // 5 lần trong 60s
   @ResponseMessage("User login")
   @Post('/login')
   handleLogin(
